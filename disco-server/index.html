@@ -2,17 +2,50 @@
 	<head>
 		<meta charset="utf-8">
 		<script src="./static/wasm_exec.js"></script>
-		<script>
+		
+            <script>
+
+window.startCapture = async (cb, fps = 5) => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: { height: 480, width: 624 }
+    });
+    console.log('got stream');
+
+    var video = document.createElement('video');
+    //document.body.appendChild(video);
+    video.srcObject = stream;
+    video.onloadedmetadata = err => {
+      video.play();
+    };
+    var canvas = document.createElement('canvas');
+    //document.body.appendChild(canvas);
+    canvas.width = 624;
+    canvas.height = 480;
+    setInterval(() => {
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      cb(canvas.toDataURL());
+    },1000 /fps);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+console.log('loaded');
+
+                </script>
+        
+        <script>
 			const go = new Go();
 			WebAssembly.instantiateStreaming(fetch("app.wasm"), go.importObject).then((result) => {
 				go.run(result.instance);
 			});
 		</script>
+
 	</head>
 	<body>
-    <video id="videostream" width="300" height="200" autoplay>
     
-   </video>
     
     
     </body>
